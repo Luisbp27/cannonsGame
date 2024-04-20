@@ -6,7 +6,7 @@
 
 ### Descripció
 
-### Funcions implementades
+### Funcions bàsiques implementades
 
 - (inicia)
 - (bucle)
@@ -16,3 +16,8 @@
 - (augmenta cano velocitat)
 - (disminueix cano velocitat)
 - (dispara cano)
+
+### Funcions extra implementades
+
+- Disseny gràfic
+- Resistència canons
