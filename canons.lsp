@@ -1,31 +1,31 @@
 
+;; FUNCIONS BÀSIQUES ;;
+
 (defun inicia()
-    (set (get 'escenari 'amplada) 640)
-    (set (get 'escenari 'altura) 340)
+    ; Inicialitzar l'escenari
+    (putprop 'escenari 640 'amplada)
+    (putprop 'escenari 340 'altura)
 
-    ; Generar aleatòriament les dimensions del mur i els camps
-    (let*(
-        (amplada-mur (+ (random 21) 20))  ; amplada del mur entre 20 i 40 px
-        (altura-mur (+ (random 51) 100))  ; altura del mur entre 100 i 150 px
-        (amplada-total-camps (- 640 amplada-mur))
-        (amplada-camp-esquerra (+ (floor amplada-total-camps 2) (- (random 41) 20)))
-        (amplada-camp-dreta (- amplada-total-camps amplada-camp-esquerra))
-    ))
-    (set (get 'escenari 'amplada-mur) amplada-mur)
-    (set (get 'escenari 'altura-mur) altura-mur)
-    (set (get 'escenari 'amplada-camp-esquerra) amplada-camp-esquerra)
-    (set (get 'escenari 'amplada-camp-dreta) amplada-camp-dreta)
+    ; Inicialitzar el mur
+    (putprop 'escenari (+ (random 21) 20) 'amplada-mur)
+    (putprop 'escenari (+ (random 51) 100) 'altura-mur)
 
-    ; Inicialitzar canons
-    (set (get 'cano1 'x) (+ (random (- amplada-camp-esquerra 95)) 95))
-    (set (get 'cano1 'y) (+ (random 31) 15))
-    (set (get 'cano1 'angle) 45)
-    (set (get 'cano1 'velocitat) 20)
+    ; Inicialitzar els camps
+    (putprop 'escenari (- 640 amplada-mur) 'amplada-total-camps)
+    (putprop 'escenari (+ (+ 0 (floor amplada-total-camps 2)) (- (random 41) 20)) 'amplada-camp-esquerra)
+    (putprop 'escenari (- amplada-total-camps amplada-camp-esquerra) 'amplada-camp-dreta)
 
-    (set (get 'cano2 'x) (+ amplada-camp-esquerra amplada-mur (random (- amplada-camp-dreta 95)) 95))
-    (set (get 'cano2 'y) (+ (random 31) 15))
-    (set (get 'cano2 'angle) 135)
-    (set (get 'cano2 'velocitat) 20)
+    ; Inicialitzar cano 1
+    (putprop 'cano1 (+ (random (- amplada-camp-esquerra 95)) 95) 'x)
+    (putprop 'cano1 (+ (random 31) 15) 'y)
+    (putprop 'cano1 45 'angle)
+    (putprop 'cano1 20 'velocitat)
+
+    ; Inicialitzar cano 2
+    (putprop 'cano2 (+ amplada-camp-esquerra amplada-mur (random (- amplada-camp-dreta 95)) 95) 'x)
+    (putprop 'cano2 (+ (random 31) 15) 'y)
+    (putprop 'cano2 135 'angle)
+    (putprop 'cano2 20 'velocitat)
 
     (bucle)
 )
@@ -55,30 +55,12 @@
     (bucle)  ; Tornar a executar el bucle
 )
 
-(defun rectangle (x y w h)
-    (move x y)
-    (drawrel w 0)
-    (drawrel 0 h)
-    (drawrel (- w) 0)
-    (drawrel 0 (- h)))
-
-(defun pinta-cano (cano)
-    (let ((x (get cano 'x)) ; Obtenir les coordenades x del canó
-            (y (get cano 'y)) ; Obtenir les coordenades y del canó
-            (angle (get cano 'angle)) ; Obtenir l'angle del canó
-            (velocitat (get cano 'velocitat))) ; Obtenir la velocitat del canó
-        (moure x y) ; Moure el cursor a la posició del canó
-        ; Dibuixar el canó
-        (drawrel (* 10 (cos angle)) (* 10 (sin angle)))
-    )
-)
-
 (defun pinta()
     ; Esborra l'escenari
     (clear)
 
     ; Dibuixa el mur
-    (rectangle 0 0 (get 'escenari 'amplada-mur) (get 'escenari 'altura-mur))
+    (rectangle 0 0 (get 'escenari 'amplada-mur) (get 'escenari 'let_-mur))
 
     ; Dibuixa els camps
     (rectangle (get 'escenari 'amplada-mur) 0 (get 'escenari 'amplada-camp-esquerra) (get 'escenari 'altura))
@@ -90,5 +72,15 @@
 
     ; Actualitza la finestra gràfica
     (refresh)
+)
+
+;; FUNCIONS AUXILIARS ;;
+
+(defun rectangle (x y w h)
+    (move x y)
+    (drawrel w 0)
+    (drawrel 0 h)
+    (drawrel (- w) 0)
+    (drawrel 0 (- h))
 )
 

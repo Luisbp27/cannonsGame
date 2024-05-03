@@ -8,14 +8,14 @@
 
 ### Funcions bàsiques implementades
 
-- (inicia)
-- (bucle)
-- (pinta)
-- (puja cano graus)
-- (baixa cano graus)
-- (augmenta cano velocitat)
-- (disminueix cano velocitat)
-- (dispara cano)
+- [] (inicia)
+- [] (bucle)
+- [] (pinta)
+- [] (puja cano graus)
+- [] (baixa cano graus)
+- [] (augmenta cano velocitat)
+- [] (disminueix cano velocitat)
+- [] (dispara cano)
 
 ### Funcions extra implementades
 
