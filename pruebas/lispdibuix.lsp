@@ -73,13 +73,12 @@
 
 (defun mover (x y)
   "mou a les coordenades arrodonides"
-  (move (round x) 
+  (move (round x)
         (round y)))
 
 (defun drawr (x y)
-  "pinta a les coordenades arrodonides"
-  (draw (round x) 
-        (round y)))
+    "pinta a les coordenades arrodonides"
+    (draw (round x) (round y)))
 
 (defun radians (graus)
   (/ (* graus (* 2 pi)) 360))
