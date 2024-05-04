@@ -9,13 +9,13 @@
 ### Funcions bàsiques implementades
 
 - [x] (inicia)
-- [] (bucle)
-- [] (pinta)
-- [] (puja cano graus)
-- [] (baixa cano graus)
-- [] (augmenta cano velocitat)
-- [] (disminueix cano velocitat)
-- [] (dispara cano)
+- [x] (bucle)
+- [x] (pinta)
+- [x] (puja cano graus)
+- [x] (baixa cano graus)
+- [x] (augmenta cano velocitat)
+- [x] (disminueix cano velocitat)
+- [x] (dispara cano)
 
 ### Funcions extra implementades
 
