@@ -8,7 +8,7 @@
 
 ### Funcions bàsiques implementades
 
-- [] (inicia)
+- [x] (inicia)
 - [] (bucle)
 - [] (pinta)
 - [] (puja cano graus)
