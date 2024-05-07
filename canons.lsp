@@ -1,3 +1,7 @@
+;; Pràctca LISP
+;; Assignatura: Llenguatges de Programació
+;; Grau en Enginyeria Informàtica - Universitat de le Illes Balears
+;; Autors: Lluis Barca Pons i Eduardo Bonnín Narváez
 
 ;; FUNCIONS PRINCIPALS ;;
 
@@ -121,7 +125,6 @@
     (let ((velocitat (get cano 'velocitat)))
         (putprop cano (- velocitat valor) 'velocitat)
     )
-    (pinta)
 )
 
 ; Funció que augmenta la velocitat del cano
@@ -129,7 +132,6 @@
     (let ((velocitat (get cano 'velocitat)))
         (putprop cano (+ velocitat valor) 'velocitat)
     )
-    (pinta)
 )
 
 ; Funció que puja el cano
@@ -178,7 +180,10 @@
         (color 0 0 0)
         (cercle x y 0.5 10)
 
-        ; Recursivitat
+        ; Espera un temps per a la següent iteració
+        (sleep 0.015)
+
+        ; Si no hay colisión, continua la recursividad
         (dispara-recursiu (get cano 'x) (get cano 'y) vx (get cano 'vy) dt g cano target mur-x mur-amplada mur-altura)
     )
 )
@@ -225,3 +230,11 @@
 
 (defun radians (graus)
   (/ (* graus (* 2 pi)) 360))
+
+(defun sleep (seconds)
+"Espera la quantitat indicada de segons"
+    (do ((endtime (+ (get-internal-real-time)
+                    (* seconds internal-time-units-per-second))))
+        ((> (get-internal-real-time) endtime))
+    )
+)

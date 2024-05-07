@@ -2,7 +2,7 @@
 
 ## Llenguatges de Programació - Universitat de les Illes Balears
 
-### Autors: Eduardo Bonnín i Lluis Barca Pons
+### Autors: Lluis Barca Pons i Eduardo Bonnín Narváez
 
 ### Descripció
 
@@ -19,5 +19,8 @@
 
 ### Funcions extra implementades
 
-- Disseny gràfic
-- Resistència canons
+- [] Disseny gràfic
+- [] Vent
+- [x] Moviment dels canons
+- [x] Animació de la trajectoria
+- [] Resistència dels canons
