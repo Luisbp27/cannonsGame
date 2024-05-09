@@ -23,4 +23,4 @@
 - [] Vent
 - [x] Moviment dels canons
 - [x] Animació de la trajectoria
-- [] Resistència dels canons
+- [x] Resistència dels canons

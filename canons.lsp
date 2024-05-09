@@ -31,12 +31,14 @@
     (putprop 'cano1 (get 'escenari 'altura-camp-esquerra) 'y)
     (putprop 'cano1 45 'angle)
     (putprop 'cano1 20 'velocitat)
+    (putprop 'cano1 10 'resistencia)
 
     ; Inicialitzar cano 2
     (putprop 'cano2 (+ (get 'escenari 'amplada-camp-esquerra) (get 'escenari 'amplada-mur) (random (- (get 'escenari 'amplada-camp-dreta) 95)) 95) 'x)
     (putprop 'cano2 (get 'escenari 'altura-camp-dreta) 'y)
     (putprop 'cano2 135 'angle)
     (putprop 'cano2 20 'velocitat)
+    (putprop 'cano2 10 'resistencia)
 
     (pinta)
     (bucle)
@@ -193,6 +195,16 @@
     (pinta)
 )
 
+; Funció que disminueix la resistència del cano
+(defun disminueix-resistencia (cano)
+    (let ((resistencia (get cano 'resistencia)))
+        (cond
+            ((> resistencia 1) (putprop cano (- resistencia 1) 'resistencia))
+            ((= resistencia 1) (print "El canó ja no té més resistència"))
+        )
+    )
+)
+
 ; Funció que dibuixa un projectil a les coordenades indicades
 (defun dispara (cano)
     (let* ( (g -9.8)  ; Acceleració de la gravetat en px/s^2
@@ -210,60 +222,56 @@
         (dispara-recursiu x0 y0 vx vy dt g cano target mur-x mur-amplada mur-altura)
     )
 
-    (print "Explosió!")
     (pinta)
 )
 
 ; Funció recursiva que simula el moviment del projectil
 (defun dispara-recursiu (x y vx vy dt g cano target mur-x mur-amplada mur-altura)
     (when (zerop (get 'escenari 'explosio)) ; Comprova si s'ha produït una explosió
-        (when (and (> y 0) (> x 0) (< x (get 'escenari 'amplada)))  ; Continua mentre estigui dins de l'àrea
-            ; Actualitza les propietats del projectil
-            (putprop cano (+ x (* vx dt)) 'x0) ; x = x + vx * dt
-            (putprop cano (+ y (* vy dt) (* 0.5 g (* dt dt))) 'y0) ; y = y + vy * dt + 0.5 * g * dt^2
-            (putprop cano (+ vy (* g dt)) 'vy) ; vy = vy + g * dt
+        (let*
+            ((new-x (+ x (* vx dt))) ; Nova posició X
+            (new-y (+ y (* vy dt) (* 0.5 g (expt dt 2)))) ; Nova posició Y
+            (new-vy (+ vy (* g dt))) ; Nova velocitat Y
+            (distancia-obj (calcular_distancia new-x new-y (get target 'x) (get target 'y)))) ; Distància entre el projectil i l'objectiu
 
             ; Dibuixa el projectil
             (color 0 0 0)
-            (cercle x y 0.5 20)
+            (cercle new-x new-y 2 10)
 
-            ; Espera un temps per a la següent iteració
+            ; Espera breu
             (sleep 0.015)
 
-            ; Comprova si hi ha col·lisió amb el terra d'un camp o l'altra
-            (when (or
-                    ; Camp esquerra
-                    (and (>= x (- (get 'escenari 'amplada) (get 'escenari 'amplada-camp-dreta))) (<= y (get 'escenari 'altura-camp-dreta)))
-                    ; Camp dreta
-                    (or (<= y (get 'escenari 'altura-camp-esquerra)) (<= y (get 'escenari 'altura-camp-dreta)))
-                )
-                (print "Col·lisió amb el terra dreta")
-                (explosio x y)
-                (putprop 'escenari 1 'explosio)
-            )
+            ; Evaluem col·lisions
+            (cond
+                ((or (>= new-y (get 'escenari 'altura)) ; Col·lisió amb les parets o el sostre
+                    (>= new-x (get 'escenari 'amplada))
+                    (<= new-x 0))
 
-            ; Comprova si hi ha col·lisió amb el mur
-            (when (and (>= x mur-x) (<= x (+ mur-x mur-amplada)) (<= y mur-altura))
-                (print "Col·lisió amb el mur")
-                (explosio x y)
-                (putprop 'escenari 1 'explosio)
-            )
+                    (explosio new-x new-y)
+                    (print "Col·lisió amb les parets o el sostre")
+                    (putprop 'escenari 1 'explosio))
 
-            ;(print "hola")
+                ((or (<= new-y (get 'escenari 'altura-camp-esquerra)) ; Col·lisió amb el camp esquerra o dreta
+                    (<= new-y (get 'escenari 'altura-camp-dreta)))
 
-            (let ((distancia-obj (calcular_distancia x y (get target 'x) (get target 'y))))
-                ; Comprova si hi ha col·lisió amb l'objectiu
-                (when (< distancia-obj 15)
-                    (print distancia-obj)
-                    (print "Col·lisió amb l'objectiu")
-                    (explosio x y)
+                    (explosio new-x new-y)
+                    (print "Col·lisió amb el camp")
                     (putprop 'escenari 1 'explosio)
                 )
-            )
 
-            ; Si no hi ha explosió, segueix amb la següent iteració (ho comprovam per si s'ha produït una explosió, no continuar amb la simulació)
-            (when (zerop (get 'escenari 'explosio))
-                (dispara-recursiu (get cano 'x0) (get cano 'y0) vx (get cano 'vy) dt g cano target mur-x mur-amplada mur-altura)
+                ((and (>= new-x mur-x) (<= new-x (+ mur-x mur-amplada)) (<= new-y mur-altura)) ; Col·lisió amb el mur
+                    (explosio new-x new-y)
+                    (print "Col·lisió amb el mur")
+                    (putprop 'escenari 1 'explosio))
+
+                ((< distancia-obj 20) ; Col·lisió amb l'objectiu
+                    (explosio new-x new-y)
+                    (disminueix-resistencia target)
+                    (print "Col·lisió amb l'objectiu")
+                    (putprop 'escenari 1 'explosio))
+
+                (t  ; Si no hi ha col·lisions, següeix amb la següent iteració la simulación
+                    (dispara-recursiu new-x new-y vx new-vy dt g cano target mur-x mur-amplada mur-altura))
             )
         )
     )
@@ -276,9 +284,9 @@
 )
 
 (defun explosio(x y)
-    (color 255 0 0)
+    (color 255 0 0) ; Color vermell
     (cercle x y 5 10)
-    (sleep 5)
+    (sleep 1)
 )
 
 (defun rectangle (x y w h)
