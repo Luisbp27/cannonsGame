@@ -6,6 +6,7 @@
 ;; FUNCIONS PRINCIPALS ;;
 
 (defun inicia()
+    "Inicialitza l'escenari, els canons i inicia el bucle principal del joc"
     ; Inicialitzar l'escenari
     (putprop 'escenari 640 'amplada)
     (putprop 'escenari 340 'altura)
@@ -45,6 +46,7 @@
 )
 
 (defun bucle()
+    "Bucle principal del joc"
     (let ((key (get-key)))  ; Obté la tecla premuda per l'usuari
         (cond
             ((equal key 27) (return))  ; Si l'usuari prem ESC, sortir del bucle
@@ -71,6 +73,7 @@
 )
 
 (defun pinta()
+    "Dibuixa l'escenari, els canons i els projectils"
     ; Esborra l'exposio
     (putprop 'escenari 0 'explosio)
 
@@ -99,22 +102,51 @@
     (pinta-cano 'cano1 (get 'cano1 'velocitat))
     (color 0 0 0)
     (pinta-cano 'cano2 (get 'cano2 'velocitat))
+
+    ; Dibuixa la resistència dels canons
+    (dibuixar-resistencia 'cano1)
+    (dibuixar-resistencia 'cano2)
 )
 
 ;; FUNCIONS PRINCIPALS DE DIBUIX ;;
 
-; Dibuixa un rectangle que representa el canó i una línia damunt d'aquest que indica la direcció del tir
 (defun pinta-cano (cano velocitat)
+    "Dibuixa el canó i la línia que indica la direcció del tir"
     (let ((x (get cano 'x))
           (y (get cano 'y))
           (angle (get cano 'angle)))
-        (rectangle (- x 20) y 20 10)
-        (angle (- x 10) (+ y 10) velocitat angle)
+        (rectangle (- x 20) y 20 10) ; Dibuixar el canó
+        (angle (- x 10) (+ y 10) velocitat angle) ; Dibuixar la línia de direcció del tir
     )
 )
 
-; Funció que mou el cano depenent de la direcció indicada
+(defun dibuixar-resistencia (cano)
+    "Dibuixa la resistència del canó"
+    (let ((resistencia (get cano 'resistencia)))
+        (cond
+            ((equal cano 'cano1)
+                (dibuixar-cors 20 (- (get 'escenari 'altura) 20) 5 10 resistencia)
+            )
+
+            ((equal cano 'cano2)
+                (dibuixar-cors (- (get 'escenari 'amplada) 110) (- (get 'escenari 'altura) 20) 5 10 resistencia)
+            )
+        )
+    )
+)
+
+(defun dibuixar-cors (x y radius spacing resistencia)
+    "Funció recursiva per a dibuixar es cors segons la resistencia."
+    (when (> resistencia 0)
+        (color 255 0 0)  ; Color vermell
+        (cercle x y radius spacing)  ; Dibuixar un cor
+        (dibuixar-cors (+ x spacing) y radius spacing (1- resistencia))
+    )
+)
+
+
 (defun moure-cano (cano direccio)
+    "Mou el cano a l'esquerra o a la dreta, depenent de la direcció indicada"
     (let* (
         (x (get cano 'x))
         (y (get cano 'y))
@@ -147,20 +179,20 @@
     (pinta)
 )
 
-; Funció que disminueix la velocitat del cano
 (defun disminueix-cano-velocitat (cano valor)
+    "Disminueix la velocitat del cano en la quantitat indicada, sempre que no sigui inferior a 10"
     (let ((velocitat (get cano 'velocitat)))
         (cond
             ((> velocitat 10) (putprop cano (- velocitat valor) 'velocitat))
-            ((= velocitat 10) (print "La velocitat no pot ser inferior a 5"))
+            ((= velocitat 10) (print "La velocitat no pot ser inferior a 10"))
         )
     )
 
     (pinta)
 )
 
-; Funció que augmenta la velocitat del cano
 (defun augmenta-cano-velocitat (cano valor)
+    "Augmenta la velocitat del cano en la quantitat indicada, sempre que no sigui superior a 80"
     (let ((velocitat (get cano 'velocitat)))
         (cond
             ((< velocitat 80) (putprop cano (+ velocitat valor) 'velocitat))
@@ -171,19 +203,20 @@
     (pinta)
 )
 
-; Funció que puja el cano
 (defun puja-cano (cano valor)
+    "Puja el cano en la quantitat indicada, depenent del cano indicat"
     (let ((angle (get cano 'angle)))
         (cond
             ((equal cano 'cano1) (putprop cano (+ angle valor) 'angle))
             ((equal cano 'cano2) (putprop cano (- angle valor) 'angle))
         )
     )
+
     (pinta)
 )
 
-; Funció que baixa el cano
 (defun baixa-cano (cano valor)
+    "Baixa el cano en la quantitat indicada, depenent del cano indicat"
     (let ((angle (get cano 'angle)))
         (if (equal cano 'cano1)
             (putprop cano (- angle valor) 'angle)
@@ -192,11 +225,12 @@
             (putprop cano (+ angle valor) 'angle)
         )
     )
+    
     (pinta)
 )
 
-; Funció que disminueix la resistència del cano
 (defun disminueix-resistencia (cano)
+    "Disminueix la resistència del canó en 1"
     (let ((resistencia (get cano 'resistencia)))
         (cond
             ((> resistencia 1) (putprop cano (- resistencia 1) 'resistencia))
@@ -205,8 +239,8 @@
     )
 )
 
-; Funció que dibuixa un projectil a les coordenades indicades
 (defun dispara (cano)
+    "Dispara un projectil amb les característiques del cano indicat"
     (let* ( (g -9.8)  ; Acceleració de la gravetat en px/s^2
             (dt 0.25) ; Interval de temps en segons per a la simulació
             (vi (get cano 'velocitat)) ; Velocitat inicial
@@ -225,8 +259,8 @@
     (pinta)
 )
 
-; Funció recursiva que simula el moviment del projectil
 (defun dispara-recursiu (x y vx vy dt g cano target mur-x mur-amplada mur-altura)
+    "Simula el moviment del projectil fins a la col·lisió amb un objectiu o una paret"
     (when (zerop (get 'escenari 'explosio)) ; Comprova si s'ha produït una explosió
         (let*
             ((new-x (+ x (* vx dt))) ; Nova posició X
@@ -248,26 +282,30 @@
                     (<= new-x 0))
 
                     (explosio new-x new-y)
-                    (print "Col·lisió amb les parets o el sostre")
+                    ; (print "Col·lisió amb les parets o el sostre")
+                    ; (sleep 1)
                     (putprop 'escenari 1 'explosio))
 
                 ((or (<= new-y (get 'escenari 'altura-camp-esquerra)) ; Col·lisió amb el camp esquerra o dreta
                     (<= new-y (get 'escenari 'altura-camp-dreta)))
 
                     (explosio new-x new-y)
-                    (print "Col·lisió amb el camp")
+                    ; (print "Col·lisió amb el camp")
+                    ; (sleep 1)
                     (putprop 'escenari 1 'explosio)
                 )
 
                 ((and (>= new-x mur-x) (<= new-x (+ mur-x mur-amplada)) (<= new-y mur-altura)) ; Col·lisió amb el mur
                     (explosio new-x new-y)
-                    (print "Col·lisió amb el mur")
+                    ; (print "Col·lisió amb el mur")
+                    ; (sleep 1)
                     (putprop 'escenari 1 'explosio))
 
                 ((< distancia-obj 20) ; Col·lisió amb l'objectiu
                     (explosio new-x new-y)
                     (disminueix-resistencia target)
-                    (print "Col·lisió amb l'objectiu")
+                    ; (print "Col·lisió amb l'objectiu")
+                    ; (sleep 1)
                     (putprop 'escenari 1 'explosio))
 
                 (t  ; Si no hi ha col·lisions, següeix amb la següent iteració la simulación
@@ -280,16 +318,19 @@
 ;; FUNCIONS AUXILIARS ;;
 
 (defun calcular_distancia (x1 y1 x2 y2)
-    (sqrt (+ (expt (- x2 x1) 2) (expt (- y2 y1) 2)))
+    "Calcula la distància entre dos punts"
+    (sqrt (+ (expt (- x2 x1) 2) (expt (- y2 y1) 2))) ; Teorema de Pitàgores on h = sqrt(a^2 + b^2)
 )
 
 (defun explosio(x y)
+    "Dibuixa una explosió a les coordenades indicades"
     (color 255 0 0) ; Color vermell
     (cercle x y 5 10)
     (sleep 1)
 )
 
 (defun rectangle (x y w h)
+    "Dibuixa un rectangle a les coordenades indicades"
     (move x y)
     (drawrel w 0)
     (drawrel 0 h)
@@ -297,8 +338,8 @@
     (drawrel 0 (- h))
 )
 
-; Dibuixa una línia a partir de les coordenades actuals
 (defun angle (x y r angle)
+    "Dibuixa una línia a partir de les coordenades actuals amb un angle i una longitud determinats"
     (move x y)
     (drawr (+ x (* r (cos (radians angle))))
            (+ y (* r (sin (radians angle)))))
@@ -310,28 +351,33 @@
 )
 
 (defun moure (x y)
-  "mou a les coordenades arrodonides"
-  (move (round x)
-        (round y)))
+    "mou a les coordenades arrodonides"
+    (move (round x) (round y))
+)
 
 (defun cercle (x y radi segments)
+    "Dibuixa un cercle a les coordenades indicades"
     (moure (+ x radi) y)
-    (cercle2 x y radi (/ 360 segments) 0))
+    (cercle2 x y radi (/ 360 segments) 0)
+)
 
 (defun cercle2 (x y radi pas angle)
-  (cond ((< angle 360)
-         (drawr (+ x (* radi (cos (radians (+ angle pas)))))
+    "Dibuixa un cercle a les coordenades indicades"
+    (cond ((< angle 360)
+        (drawr (+ x (* radi (cos (radians (+ angle pas)))))
                 (+ y (* radi (sin (radians (+ angle pas))))))
-         (cercle2 x y radi pas (+ angle pas)))
+        (cercle2 x y radi pas (+ angle pas)))
         (t t)
     )
 )
 
 (defun radians (graus)
-  (/ (* graus (* 2 pi)) 360))
+    "Converteix graus a radians"
+    (/ (* graus (* 2 pi)) 360)
+)
 
 (defun sleep (seconds)
-"Espera la quantitat indicada de segons"
+    "Espera la quantitat indicada de segons"
     (do ((endtime (+ (get-internal-real-time)
                     (* seconds internal-time-units-per-second))))
         ((> (get-internal-real-time) endtime))
